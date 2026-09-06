@@ -90,7 +90,7 @@ hello-64bc89c744-qv8ld   1/1     Running   0
 
 The `1/1` READY status indicates that the Pod's single container is ready.
 
-![image](01-kubernetes-deployment.png)
+![image](screenshots/01-kubernetes-deployment.png)
 
 ## 5. Expose the Deployment
 
@@ -129,12 +129,11 @@ http://127.0.0.1:59300
 ```
 
 The actual port may differ between runs.
-
 Minikube created a local service tunnel because the Docker driver was being used on macOS. The terminal running the service command needed to remain open while the tunnel was in use.
 
 Opening the generated URL in a web browser displayed the **Nginx Welcome Page**, confirming that the application was accessible.
 
-![image](02-welcome-nginx.png)
+![image](screenshots/02-nginx-welcome-page.png)
 
 ## 7. Kubernetes Architecture and Working
 
