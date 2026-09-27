@@ -237,25 +237,9 @@ The hostname above is illustrative. The actual Pod hostname is returned by the r
 
 ![Successful Flask endpoint responses](screenshots/07-flask-endpoints.png)
 
-## 10. Test Request Distribution Through the Service
-
-To test the Service from inside Kubernetes, a temporary BusyBox Pod can send repeated requests to `flashsale-svc`:
-
-```bash
-kubectl run tester --rm -i --restart=Never \
-  --image=busybox:1.36 \
-  --command -- sh -c \
-  'for i in 1 2 3 4 5 6 7 8 9 10; do wget -qO- http://flashsale-svc/buy; echo; done'
-```
-
-Inspect the `served_by_pod` values in the returned JSON responses.
-
-If multiple distinct Pod hostnames appear, the output demonstrates that requests reached different replicas through the Service. Seeing only one hostname in a small sample does not necessarily mean the Service is misconfigured.
-
-Repeated requests through local port-forwarding alone do not establish that traffic was distributed across all replicas.
 
 
-## 11. How Kubernetes Manages the Application
+## 10. How Kubernetes Manages the Application
 
 The application deployment follows this simplified workflow:
 
@@ -296,7 +280,7 @@ ClusterIP Service provides access to matching Pods
 7. **Container Runtime:** Runs the application containers.
 8. **ClusterIP Service:** Selects matching Pods and provides a stable internal endpoint for accessing the application.
 
-## 12. Important Commands
+## 11. Important Commands
 
 ### Cluster Setup
 
@@ -362,7 +346,7 @@ kubectl delete -f flashsale-replicaset.yaml
 minikube stop
 ```
 
-## 13. Result
+## 12. Result
 
 The Flask flash-sale application was deployed on Minikube using a ReplicaSet and a ClusterIP Service.
 
@@ -372,7 +356,7 @@ The application image is built locally and the application can be accessed from 
 
 The scaling, self-healing, and endpoint testing results should be verified using the actual terminal output before marking each step as successfully completed.
 
-## 14. Screenshots
+## 13. Screenshots
 
 The `screenshots/` directory contains terminal screenshots documenting the cluster setup, image build, initial deployment, scaling, self-healing, Service configuration, and application testing.
 
@@ -387,6 +371,5 @@ screenshots/
 ├── 05-pod-self-healing.png
 ├── 06-service-and-pods.png
 ├── 07-flask-endpoints.png
-└── 08-service-load-distribution.png
 ```
 
