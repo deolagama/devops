@@ -1,0 +1,19 @@
+groups:
+  - name: delivery_alerts
+    rules:
+      - alert: HighPendingDeliveries
+        expr: pending_deliveries > 10
+        for: 15s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Too many pending deliveries"
+          description: "pending_deliveries is {{ $value }} (threshold: 10)"
+
+      - alert: HighAverageDeliveryTime
+        expr: (average_delivery_time_sum / average_delivery_time_count) > 30
+        labels:
+          severity: critical
+        annotations:
+          summary: "Average delivery time is too high"
+          description: "Average delivery time is {{ $value }} seconds (threshold: 30)"
