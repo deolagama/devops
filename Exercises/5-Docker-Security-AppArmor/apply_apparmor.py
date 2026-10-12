@@ -1,27 +1,21 @@
-"""Start the flask-apparmor image with the AppArmor profile using the Docker SDK for Python."""
 import docker
-
-IMAGE = "flask-apparmor"
-NAME = "flask-secure-sdk"
-PROFILE = "my-apparmor-profile"
-HOST_PORT = 5002  # 5000 is used by macOS AirPlay Receiver, 5001 by the CLI container
 
 client = docker.from_env()
 
-# Remove a container left over from a previous run
-try:
-    client.containers.get(NAME).remove(force=True)
-except docker.errors.NotFound:
-    pass
+client.images.build(path=".", tag="flask-apparmor")
 
 container = client.containers.run(
-    IMAGE,
-    name=NAME,
-    detach=True,
-    security_opt=[f"apparmor={PROFILE}"],
-    ports={"5000/tcp": HOST_PORT},
+    "flask-apparmor",
+    security_opt=["apparmor=my-apparmor-profile"],
+    detach=True
 )
-container.reload()
 
-print(f"Container {container.name} started with security_opt: {container.attrs['HostConfig']['SecurityOpt']}")
-print(f"AppArmor profile reported by Docker: {container.attrs['AppArmorProfile']}")
+print(f"Container started: {container.short_id}")
+
+container_info = client.api.inspect_container(container.id)
+apparmor_profile = container_info['HostConfig']['SecurityOpt']
+
+print(f"AppArmor profile applied: {apparmor_profile}")
+
+container.stop()
+container.remove()

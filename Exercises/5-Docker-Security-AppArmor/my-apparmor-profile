@@ -1,41 +1,16 @@
 #include <tunables/global>
 
-profile my-apparmor-profile flags=(attach_disconnected,mediate_deleted) {
-  #include <abstractions/base>
+/usr/bin/python3 {
+    deny /etc/** r,
+    deny /var/** rw,
 
-  # --- Networking: IPv4 TCP only, enough for Flask on port 5000 ---
-  network inet tcp,
-  capability net_bind_service,
+    network inet stream,
 
-  # --- Dangerous capability ---
-  deny capability sys_admin,
+    /app/** rwk,
 
-  # --- Python and its libraries must be able to run ---
-  /usr/local/bin/python* ix,
-  /usr/local/lib/** mr,
-  /usr/lib/** mr,
-  /lib/** mr,
-  /proc/** r,
+    deny /bin/** rmix,
+    deny /usr/bin/** rmix,
 
-  # --- Application directory: read/write ---
-  /app/ r,
-  /app/** rw,
-
-  # --- Minimal /etc files needed for the container to start and resolve names ---
-  /etc/ld.so.cache r,
-  /etc/hosts r,
-  /etc/resolv.conf r,
-  /etc/nsswitch.conf r,
-  /etc/localtime r,
-
-  # --- Sensitive files and directories ---
-  deny /etc/passwd rwklx,
-  deny /etc/shadow rwklx,
-  deny /etc/** w,
-  deny /var/** rwklx,
-
-  # --- No executing system binaries ---
-  deny /bin/** x,
-  deny /usr/bin/** x,
-  deny /sbin/** x,
+    capability net_bind_service,
+    deny capability sys_admin,
 }
