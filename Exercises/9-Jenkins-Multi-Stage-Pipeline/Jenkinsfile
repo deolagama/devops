@@ -1,0 +1,76 @@
+pipeline {
+    agent any
+
+    environment {
+        APP_DIR = 'Exercises/9-Jenkins-Multi-Stage-Pipeline'
+    }
+
+    stages {
+        stage('Build') {
+            steps {
+                dir("${APP_DIR}") {
+                    sh '''
+                        python3 --version
+                        python3 -c "import importlib.metadata as m; print('Flask', m.version('flask'))"
+                    '''
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                dir("${APP_DIR}") {
+                    sh 'python3 -m unittest discover -s .'
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                dir("${APP_DIR}") {
+                    sh '''
+                        mkdir -p python-app-deploy
+                        cp app.py python-app-deploy/
+                        ls python-app-deploy
+                    '''
+                }
+            }
+        }
+
+        stage('Run Application') {
+            steps {
+                withEnv(['JENKINS_NODE_COOKIE=dontKillMe']) {
+                    dir("${APP_DIR}/python-app-deploy") {
+                        sh '''
+                            if [ -f app.pid ]; then kill $(cat app.pid) 2>/dev/null || true; fi
+                            nohup python3 app.py > app.log 2>&1 &
+                            echo $! > app.pid
+                            sleep 3
+                            echo "Application started with PID $(cat app.pid)"
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Test Application') {
+            steps {
+                dir("${APP_DIR}") {
+                    sh '''
+                        python3 test_app.py
+                        python3 -c "import urllib.request; print(urllib.request.urlopen('http://localhost:5001/').read().decode())"
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check the console output.'
+        }
+    }
+}
